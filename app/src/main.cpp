@@ -1,29 +1,35 @@
-#include <zephyr/drivers/gpio.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/display/mb_display.h>
 
 #define SLEEP_TIME_MS 1000
 
-/* The devicetree node identifier for the "led0" alias. */
-#define LED_NODE DT_ALIAS(led0)
-
-static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED_NODE, gpios);
-
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
+
+static const struct mb_image pixel_on = MB_IMAGE(
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 1, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 });
+
+static const struct mb_image pixel_off = MB_IMAGE(
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 });
 
 int main(void)
 {
+    struct mb_display *disp = mb_display_get();
     bool led_state = true;
 
-    if (!gpio_is_ready_dt(&led)) return 0;
-
-    if (gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE) < 0) return 0;
-
     while (1) {
-        if (gpio_pin_toggle_dt(&led) < 0) return 0;
-
-        led_state = !led_state;
+        const struct mb_image *img = led_state ? &pixel_on : &pixel_off;
+        mb_display_image(disp, MB_DISPLAY_MODE_SINGLE, SYS_FOREVER_MS, img, 1);
         LOG_INF("LED state: %s", led_state ? "ON" : "OFF");
+        led_state = !led_state;
         k_msleep(SLEEP_TIME_MS);
     }
     return 0;

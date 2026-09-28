@@ -1,0 +1,16 @@
+# nRF52 BBC_MICROBIT_V2 board configuration
+
+# Copyright (c) 2020 Lingao Meng
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_OUR_BOARD
+	select SOC_NRF52833_QIAA
+
+# our_board is a BBC micro:bit v2 variant, but since it has its own board
+# directory, the upstream bbc_microbit_v2 Kconfig tree (which defines this
+# symbol) is never sourced here. Re-declare it so drivers that gate on it,
+# e.g. MICROBIT_DISPLAY, still build for our_board.
+	#config BOARD_BBC_MICROBIT_V2
+	#	bool
+	#	default y
+	#	depends on BOARD_OUR_BOARD

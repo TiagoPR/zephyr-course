@@ -1,0 +1,70 @@
+/*
+ * Copyright (c) 2020 Lingao Meng
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <nordic/nrf52833_qiaa.dtsi>
+#include "my_board-pinctrl.dtsi"
+
+/ {
+	model = "My Board";
+	compatible = "iomico,my-board";
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+
+};
+
+&flash0 {
+	partitions {
+		ranges;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
+			label = "mcuboot";
+			reg = <0x00000000 0xc000>;
+		};
+
+		slot0_partition: partition@c000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-0";
+			reg = <0x0000c000 0x32000>;
+		};
+
+		slot1_partition: partition@3e000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-1";
+			reg = <0x0003e000 0x32000>;
+		};
+
+		scratch_partition: partition@70000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-scratch";
+			reg = <0x00070000 0xa000>;
+		};
+
+		storage_partition: partition@7a000 {
+			compatible = "zephyr,mapped-partition";
+			label = "storage";
+			reg = <0x0007a000 0x00006000>;
+		};
+	};
+};
+
+&uart0 {
+	compatible = "nordic,nrf-uart";
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
